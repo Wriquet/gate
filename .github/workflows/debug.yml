@@ -1,0 +1,14 @@
+name: debug-worker
+on:
+  workflow_dispatch:
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: curl check endpoint
+        run: |
+          echo "--- /ip.json ---"
+          curl -sS -i --max-time 20 "https://gate-check.zerosoul929.workers.dev/ip.json" | head -30
+          echo "--- /check sstp ---"
+          curl -sS -i --max-time 60 "https://gate-check.zerosoul929.workers.dev/check?sstp=vpn:vpn@public-vpn-232.opengw.net%3A995" | head -40
