@@ -6,9 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: curl check endpoint
+      - name: curl endpoints
         run: |
-          echo "--- /ip.json ---"
-          curl -sS -i --max-time 20 "https://gate-check.zerosoul929.workers.dev/ip.json" | head -30
-          echo "--- /check sstp ---"
-          curl -sS -i --max-time 60 "https://gate-check.zerosoul929.workers.dev/check?sstp=vpn:vpn@public-vpn-232.opengw.net%3A995" | head -40
+          echo "--- hello worker ---"
+          curl -sS -i --max-time 20 "https://gate-hello.zerosoul929.workers.dev/" | head -12
