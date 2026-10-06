@@ -6,12 +6,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: curl endpoints
+      - name: probes
         run: |
-          for u in "https://probe-ok-b.zerosoul929.workers.dev/" "https://probe-ok-2026.zerosoul929.workers.dev/" "https://gate-hello.zerosoul929.workers.dev/"; do
+          for h in gate-hello zerosoul929-doesnotexist-abc123 cfnew-proxy; do
+            u="https://$h.zerosoul929.workers.dev/"
             echo "=== $u ==="
-            for i in 1 2; do
-              curl -sS -o /tmp/body -w 'code=%{http_code} ' --max-time 20 "$u" || echo "curl failed"
-              echo "BODY: $(cat /tmp/body 2>/dev/null)"
-            done
+            curl -sS -o /tmp/body -w 'code=%{http_code} ip=%{remote_ip}\n' --max-time 20 "$u" || echo "curl failed rc=$?"
+            echo "BODY: $(cat /tmp/body 2>/dev/null)"
           done
+          echo "=== dns ==="
+          getent hosts gate-hello.zerosoul929.workers.dev || true
+          getent hosts zerosoul929-doesnotexist-abc123.zerosoul929.workers.dev || echo "NXDOMAIN for bogus"
