@@ -2,18 +2,25 @@ name: debug-worker
 on:
   workflow_dispatch:
 jobs:
-  debug:
+  probes:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     steps:
-      - name: probes
+      - name: identity
         run: |
-          for h in gate-hello zerosoul929-doesnotexist-abc123 cfnew-proxy; do
-            u="https://$h.zerosoul929.workers.dev/"
-            echo "=== $u ==="
-            curl -sS -o /tmp/body -w 'code=%{http_code} ip=%{remote_ip}\n' --max-time 20 "$u" || echo "curl failed rc=$?"
-            echo "BODY: $(cat /tmp/body 2>/dev/null)"
-          done
-          echo "=== dns ==="
-          getent hosts gate-hello.zerosoul929.workers.dev || true
-          getent hosts zerosoul929-doesnotexist-abc123.zerosoul929.workers.dev || echo "NXDOMAIN for bogus"
+          echo "runner egress: $(curl -sS --max-time 15 https://api.ipify.org) / $(curl -sS --max-time 15 https://ipinfo.io/json | tr -d '\n')"
+          echo "cf trace of runner: $(curl -sS --max-time 15 https://www.cloudflare.com/cdn-cgi/trace | grep -E '^(ip|colo|loc)=' | tr '\n' ' ')"
+      - name: control probes
+        run: |
+          probe() { echo "--- $1"; curl -sS -o /tmp/b -w 'code=%{http_code} ip=%{remote_ip}\n' --max-time 25 "$1" || echo "curl rc=$?"; echo "BODY: $(head -c 200 /tmp/b)"; }
+          probe "https://gate-hello.zerosoul929.workers.dev/"
+          probe "https://bogus-xyz-999.zerosoul929.workers.dev/"
+          probe "https://hello-world.workers.dev/"
+          probe "https://example.workers.dev/"
+          probe "https://emkc.workers.dev/"
+      - name: third party fetchers
+        run: |
+          probe() { echo "--- $1"; curl -sS -o /tmp/b -w 'code=%{http_code}\n' --max-time 30 "$1" || echo "curl rc=$?"; echo "BODY: $(head -c 200 /tmp/b)"; }
+          probe "https://r.jina.ai/https://gate-hello.zerosoul929.workers.dev/"
+          probe "https://api.allorigins.win/raw?url=https%3A%2F%2Fgate-hello.zerosoul929.workers.dev%2F"
+          probe "https://api.codetabs.com/v1/proxy?quest=https://gate-hello.zerosoul929.workers.dev/"
