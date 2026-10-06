@@ -8,5 +8,9 @@ jobs:
     steps:
       - name: curl endpoints
         run: |
-          echo "--- hello worker ---"
-          curl -sS -i --max-time 20 "https://gate-hello.zerosoul929.workers.dev/" | head -12
+          for u in "https://probe-ok-2026.zerosoul929.workers.dev/" "https://gate-hello.zerosoul929.workers.dev/" "https://cfnew-proxy.zerosoul929.workers.dev/"; do
+            echo "=== $u ==="
+            curl -sS -o /tmp/body -D /tmp/hdr --max-time 20 -w 'code=%{http_code} size=%{size_download} ip=%{remote_ip}\n' "$u"
+            head -3 /tmp/hdr
+            echo "BODY: $(cat /tmp/body)"
+          done
