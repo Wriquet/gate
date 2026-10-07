@@ -4,12 +4,13 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 6
+    timeout-minutes: 8
     steps:
-      - name: verify custom domains
+      - name: verify check.1111009.xyz
         run: |
-          for u in "https://proxy.1111009.xyz/" "https://temp-mail-api.finalrouter.xyz/"; do
-            echo "=== $u ==="
-            curl -sS -o /tmp/b --max-time 25 -w 'code=%{http_code} size=%{size_download}\n' "$u" || echo "curl rc=$?"
-            head -c 200 /tmp/b; echo
-          done
+          echo "=== /ip.json ==="
+          curl -sS -o /tmp/ip --max-time 25 -w 'code=%{http_code} size=%{size_download}\n' "https://check.1111009.xyz/ip.json" || echo "rc=$?"
+          head -c 500 /tmp/ip; echo
+          echo "=== /check (SSTP node) ==="
+          curl -sS -o /tmp/ck --max-time 90 -w 'code=%{http_code} size=%{size_download} time=%{time_total}s\n' "https://check.1111009.xyz/check?sstp=vpn:vpn@public-vpn-232.opengw.net%3A995" || echo "rc=$?"
+          head -c 600 /tmp/ck; echo
