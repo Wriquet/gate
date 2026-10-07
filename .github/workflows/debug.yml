@@ -6,10 +6,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 6
     steps:
-      - name: verify gate-check
+      - name: verify custom domains
         run: |
-          for u in "https://gate-check.zerosoul929.workers.dev/" "https://gate-check.zerosoul929.workers.dev/ip.json" "https://gate-check.zerosoul929.workers.dev/check?sstp=vpn:vpn@public-vpn-232.opengw.net%3A995"; do
+          for u in "https://proxy.1111009.xyz/" "https://temp-mail-api.finalrouter.xyz/"; do
             echo "=== $u ==="
-            curl -sS -o /tmp/b --max-time 30 -w 'code=%{http_code} size=%{size_download}\n' "$u" || echo "curl rc=$?"
-            head -c 400 /tmp/b; echo
+            curl -sS -o /tmp/b --max-time 25 -w 'code=%{http_code} size=%{size_download}\n' "$u" || echo "curl rc=$?"
+            head -c 200 /tmp/b; echo
           done
