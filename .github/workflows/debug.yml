@@ -1,0 +1,15 @@
+name: debug-worker
+on:
+  workflow_dispatch:
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: multicolo probe
+        run: |
+          for u in "https://edt.1111009.xyz/" "https://edgetunnel.1111009.xyz/" "https://check.1111009.xyz/ip.json" "https://proxy.1111009.xyz/"; do
+            printf "%-42s " "$u"
+            curl -sS -o /tmp/b --max-time 25 -w 'code=%{http_code} ip=%{remote_ip}\n' "$u" || echo "curl rc=$?"
+            head -c 60 /tmp/b; echo
+          done
