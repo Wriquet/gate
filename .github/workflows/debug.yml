@@ -6,10 +6,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 6
     steps:
-      - name: multicolo probe
+      - name: probe
         run: |
-          for u in "https://edt.1111009.xyz/" "https://edgetunnel.1111009.xyz/" "https://check.1111009.xyz/ip.json" "https://proxy.1111009.xyz/"; do
-            printf "%-42s " "$u"
-            curl -sS -o /tmp/b --max-time 25 -w 'code=%{http_code} ip=%{remote_ip}\n' "$u" || echo "curl rc=$?"
-            head -c 60 /tmp/b; echo
+          for h in edt.1111009.xyz edgetunnel.1111009.xyz check.1111009.xyz; do
+            echo "=== $h ==="
+            getent hosts "$h" || echo "  DNS: 解析失败"
+            curl -sS -o /tmp/b --max-time 25 -w '  code=%{http_code} ip=%{remote_ip} size=%{size_download}\n' "https://$h/" || echo "  curl rc=$?"
+            head -c 100 /tmp/b 2>/dev/null; echo
           done
